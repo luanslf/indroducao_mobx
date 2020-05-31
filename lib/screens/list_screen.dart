@@ -10,6 +10,7 @@ class ListScreen extends StatefulWidget {
 
 class _ListScreenState extends State<ListScreen> {
   ListStore listStore = ListStore();
+  TextEditingController todoController = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -44,29 +45,36 @@ class _ListScreenState extends State<ListScreen> {
         children: <Widget>[
           listTextField(),
           Expanded(
-            child: Observer(builder: (_) {
-              return ListView.builder(
-              shrinkWrap: true,
-              itemCount: listStore.todoList.length,
-              itemBuilder: (context, index) {
-                return taskItem(title: listStore.todoList[index]);
+            child: Observer(
+              builder: (_) {
+                return ListView.separated(
+                  shrinkWrap: true,
+                  itemCount: listStore.todoList.length,
+                  itemBuilder: (context, index) {
+                    final todo = listStore.todoList[index];
+                    return Observer(
+                      builder: (_) {
+                        return ListTile(
+                          onTap: todo.toggleDone,
+                          title: Text(
+                            todo.title,
+                            style: TextStyle(
+                              color: todo.done ? Colors.grey : Colors.black,
+                              decoration:
+                                  todo.done ? TextDecoration.lineThrough : null,
+                            ),
+                          ),
+                        );
+                      },
+                    );
+                  },
+                  separatorBuilder: (_, __) {
+                    return Divider();
+                  },
+                );
               },
-            );
-            },),
+            ),
           ),
-        ],
-      ),
-    );
-  }
-
-  Widget taskItem({@required String title}) {
-    return Container(
-      child: Column(
-        children: <Widget>[
-          ListTile(
-            title: Text(title),
-          ),
-          Divider(),
         ],
       ),
     );
@@ -86,6 +94,7 @@ class _ListScreenState extends State<ListScreen> {
             builder: (_) {
               return Expanded(
                 child: TextField(
+                  controller: todoController,
                   onChanged: listStore.setNewTodo,
                   decoration: InputDecoration.collapsed(hintText: 'Tarefa'),
                 ),
@@ -96,7 +105,10 @@ class _ListScreenState extends State<ListScreen> {
             builder: (_) {
               return IconButton(
                 icon: Icon(Icons.add),
-                onPressed: listStore.isFormValid ? listStore.addNewTodo : null,
+                onPressed: listStore.isFormValid ? () {
+                  listStore.addNewTodo();
+                  todoController.clear();
+                } : null,
               );
             },
           ),
