@@ -1,6 +1,20 @@
 import 'package:mobx/mobx.dart';
 
-class Counter {
+part 'counter.g.dart';
+
+class Counter = _Counter with _$Counter;
+
+abstract class _Counter with Store {
+  @observable
+  int count = 0;
+
+  @action
+  void increment() {
+    count++;
+  }
+}
+
+/* class Counter {
 
   Counter() {
     increment = Action(_increment);
@@ -15,4 +29,4 @@ class Counter {
   void _increment() {
     _count.value++;
   }
-}
+} */
