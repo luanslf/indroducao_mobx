@@ -3,6 +3,7 @@ import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:introducao_mobx/stores/login_store.dart';
 import 'package:introducao_mobx/widgets/custom_icon_button.dart';
 import 'package:introducao_mobx/widgets/custom_text_field.dart';
+import 'package:mobx/mobx.dart';
 
 import 'list_screen.dart';
 
@@ -12,7 +13,45 @@ class LoginScreen extends StatefulWidget {
 }
 
 class _LoginScreenState extends State<LoginScreen> {
+  
   LoginStore loginStore = LoginStore();
+  ReactionDisposer disposer;
+
+  @override
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+
+    /* autorun((_) {
+      if (loginStore.loggedIn) {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ListScreen(),
+          ),
+        );
+      }
+    }); */
+
+    disposer = reaction(
+      (_) => loginStore.loggedIn,
+      (loggedIn) {
+        if (loggedIn) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ListScreen(),
+            ),
+          );
+        }
+      },
+    );
+  }
+
+  @override
+  void dispose() {
+    disposer();
+    super.dispose();
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -31,12 +70,16 @@ class _LoginScreenState extends State<LoginScreen> {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: <Widget>[
-                    CustomTextField(
-                      hint: 'E-mail',
-                      prefix: Icon(Icons.account_circle),
-                      textInputType: TextInputType.emailAddress,
-                      onChanged: loginStore.setEmail,
-                      enabled: true,
+                    Observer(
+                      builder: (_) {
+                        return CustomTextField(
+                          hint: 'E-mail',
+                          prefix: Icon(Icons.account_circle),
+                          textInputType: TextInputType.emailAddress,
+                          onChanged: loginStore.setEmail,
+                          enabled: !loginStore.isLoading,
+                        );
+                      },
                     ),
                     const SizedBox(
                       height: 16,
@@ -48,7 +91,7 @@ class _LoginScreenState extends State<LoginScreen> {
                           prefix: Icon(Icons.lock),
                           obscure: loginStore.obscurePassword,
                           onChanged: loginStore.setPassword,
-                          enabled: true,
+                          enabled: !loginStore.isLoading,
                           suffix: CustomIconButton(
                             radius: 32,
                             iconData: loginStore.isPasswordObscure
@@ -70,20 +113,17 @@ class _LoginScreenState extends State<LoginScreen> {
                             shape: RoundedRectangleBorder(
                               borderRadius: BorderRadius.circular(32),
                             ),
-                            child: Text('Login'),
+                            child: loginStore.isLoading
+                                ? CircularProgressIndicator(
+                                    valueColor:
+                                        AlwaysStoppedAnimation(Colors.white),
+                                  )
+                                : Text('Login'),
                             color: Theme.of(context).primaryColor,
                             disabledColor:
                                 Theme.of(context).primaryColor.withAlpha(100),
                             textColor: Colors.white,
-                            onPressed: loginStore.isFormValid
-                                ? () {
-                                    Navigator.of(context).pushReplacement(
-                                      MaterialPageRoute(
-                                        builder: (context) => ListScreen(),
-                                      ),
-                                    );
-                                  }
-                                : null,
+                            onPressed: loginStore.loginPressed,
                           ),
                         );
                       },
