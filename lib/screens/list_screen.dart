@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:introducao_mobx/screens/login_screen.dart';
+import 'package:introducao_mobx/stores/list_store.dart';
 
 class ListScreen extends StatefulWidget {
   @override
@@ -7,6 +9,8 @@ class ListScreen extends StatefulWidget {
 }
 
 class _ListScreenState extends State<ListScreen> {
+  ListStore listStore = ListStore();
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -40,13 +44,15 @@ class _ListScreenState extends State<ListScreen> {
         children: <Widget>[
           listTextField(),
           Expanded(
-            child: ListView.builder(
+            child: Observer(builder: (_) {
+              return ListView.builder(
               shrinkWrap: true,
-              itemCount: 10,
+              itemCount: listStore.todoList.length,
               itemBuilder: (context, index) {
-                return taskItem(title: 'Item $index');
+                return taskItem(title: listStore.todoList[index]);
               },
-            ),
+            );
+            },),
           ),
         ],
       ),
@@ -76,15 +82,24 @@ class _ListScreenState extends State<ListScreen> {
       ),
       child: Row(
         children: <Widget>[
-          Expanded(
-            child: TextField(
-              decoration: InputDecoration.collapsed(hintText: 'Tarefa'),
-            ),
+          Observer(
+            builder: (_) {
+              return Expanded(
+                child: TextField(
+                  onChanged: listStore.setNewTodo,
+                  decoration: InputDecoration.collapsed(hintText: 'Tarefa'),
+                ),
+              );
+            },
           ),
-          IconButton(
-            icon: Icon(Icons.add),
-            onPressed: () {},
-          )
+          Observer(
+            builder: (_) {
+              return IconButton(
+                icon: Icon(Icons.add),
+                onPressed: listStore.isFormValid ? listStore.addNewTodo : null,
+              );
+            },
+          ),
         ],
       ),
     );
