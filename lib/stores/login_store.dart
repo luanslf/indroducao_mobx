@@ -11,12 +11,21 @@ abstract class _LoginStore with Store {
   @observable
   String password = "";
 
+  @observable
+  bool obscurePassword = true;
+
   @action
   void setEmail(String value) => email = value;
 
   @action
   void setPassword(String value) => password = value;
 
+  @action
+  void setObscurePassword() => obscurePassword = !obscurePassword;
+
+  @computed
+  bool get isPasswordObscure => obscurePassword != false;
+  
   @computed
   bool get isEmailValid => email.length >= 6;
 

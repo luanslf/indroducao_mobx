@@ -9,6 +9,13 @@ part of 'login_store.dart';
 // ignore_for_file: non_constant_identifier_names, unnecessary_lambdas, prefer_expression_function_bodies, lines_longer_than_80_chars, avoid_as, avoid_annotating_with_dynamic
 
 mixin _$LoginStore on _LoginStore, Store {
+  Computed<bool> _$isPasswordObscureComputed;
+
+  @override
+  bool get isPasswordObscure => (_$isPasswordObscureComputed ??= Computed<bool>(
+          () => super.isPasswordObscure,
+          name: '_LoginStore.isPasswordObscure'))
+      .value;
   Computed<bool> _$isEmailValidComputed;
 
   @override
@@ -61,6 +68,21 @@ mixin _$LoginStore on _LoginStore, Store {
     });
   }
 
+  final _$obscurePasswordAtom = Atom(name: '_LoginStore.obscurePassword');
+
+  @override
+  bool get obscurePassword {
+    _$obscurePasswordAtom.reportRead();
+    return super.obscurePassword;
+  }
+
+  @override
+  set obscurePassword(bool value) {
+    _$obscurePasswordAtom.reportWrite(value, super.obscurePassword, () {
+      super.obscurePassword = value;
+    });
+  }
+
   final _$_LoginStoreActionController = ActionController(name: '_LoginStore');
 
   @override
@@ -86,10 +108,23 @@ mixin _$LoginStore on _LoginStore, Store {
   }
 
   @override
+  void setObscurePassword() {
+    final _$actionInfo = _$_LoginStoreActionController.startAction(
+        name: '_LoginStore.setObscurePassword');
+    try {
+      return super.setObscurePassword();
+    } finally {
+      _$_LoginStoreActionController.endAction(_$actionInfo);
+    }
+  }
+
+  @override
   String toString() {
     return '''
 email: ${email},
 password: ${password},
+obscurePassword: ${obscurePassword},
+isPasswordObscure: ${isPasswordObscure},
 isEmailValid: ${isEmailValid},
 isPasswordValid: ${isPasswordValid},
 isFormValid: ${isFormValid}
