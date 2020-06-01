@@ -27,6 +27,9 @@ abstract class _LoginStore with Store {
 
     loading = false;
     loggedIn = true;
+
+    email = '';
+    password = '';
   }
 
   @action
@@ -37,6 +40,9 @@ abstract class _LoginStore with Store {
 
   @action
   void setObscurePassword() => obscurePassword = !obscurePassword;
+
+  @action
+  void logOut() => loggedIn = false;
 
   @computed
   bool get isPasswordObscure => obscurePassword != false;

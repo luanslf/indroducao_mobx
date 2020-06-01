@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import 'package:flutter_mobx/flutter_mobx.dart';
 import 'package:introducao_mobx/screens/login_screen.dart';
 import 'package:introducao_mobx/stores/list_store.dart';
+import 'package:introducao_mobx/stores/login_store.dart';
+import 'package:provider/provider.dart';
 
 class ListScreen extends StatefulWidget {
   @override
@@ -143,6 +145,9 @@ class _ListScreenState extends State<ListScreen> {
   }
 
   void goToLoginScreen() {
+
+    Provider.of<LoginStore>(context, listen: false).logOut();
+
     Navigator.pushReplacement(
       context,
       MaterialPageRoute(
